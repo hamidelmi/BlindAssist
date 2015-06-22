@@ -7,18 +7,20 @@ using Microsoft.SPOT.Presentation.Controls;
 using Microsoft.SPOT.Presentation.Media;
 using Microsoft.SPOT.Presentation.Shapes;
 using Microsoft.SPOT.Touch;
-
+using Microsoft.SPOT.Hardware;
 using Gadgeteer.Networking;
 using GT = Gadgeteer;
 using GTM = Gadgeteer.Modules;
 using Gadgeteer.Modules.GHIElectronics;
+using System.Text;
+using System.IO;
 
 namespace BlindAssist
 {
     public partial class Program
     {
-        Bluetooth bluetooth;
-        BlindAssist.Bluetooth.Client client;
+        const string NETWORK_ID = "TUDWeb";
+        const string NETWORK_PASSKEY = "";
         // This method is run when the mainboard is powered up or reset.   
         void ProgramStarted()
         {
@@ -38,28 +40,46 @@ namespace BlindAssist
 
             // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
             Debug.Print("Program Started");
+            wifiRS21.NetworkInterface.Open();
+            wifiRS21.UseDHCP();
+
+            var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
+            if (results != null && results.Length > 1)
+            {
+                var netInfo = results[0];
+                netInfo.Key = "";
+                wifiRS21.NetworkInterface.Join(netInfo);
+            }
+            else
+            {
+                Debug.Print("Unable to find the network");
+            }
 
             rfidReader.IdReceived += rfidReader_IdReceived;
+        }
 
-            bluetooth = new Bluetooth(9);
-            client = bluetooth.ClientMode;
-            //var host = bluetooth.HostMode;
+        void wifiRS21_NetworkUp(GTM.Module.NetworkModule sender, GTM.Module.NetworkModule.NetworkState state)
+        {
+            showNetworkInformation();
+        }
 
-            bluetooth.SetDeviceName("Gadgeteer");
-            bluetooth.SetPinCode("1234");
-            bluetooth.DataReceived += new Bluetooth.DataReceivedHandler(bluetooth_DataReceived);
-            client.EnterPairingMode();
+        private void showNetworkInformation()
+        {
+            Debug.Print("net status:" + wifiRS21.IsNetworkConnected);
+            Debug.Print("net status:" + wifiRS21.NetworkInterface.IPAddress);
         }
 
         void rfidReader_IdReceived(RFIDReader sender, string e)
         {
+            showNetworkInformation();
+
+            if (wifiRS21.IsNetworkConnected)
+            {
+
+                //Gadgeteer.
+            }
+
             Debug.Print("rfid reads:" + e);
         }
-
-        private void bluetooth_DataReceived(Bluetooth sender, string data)
-        {
-            Debug.Print(data);
-        }
-
     }
 }
