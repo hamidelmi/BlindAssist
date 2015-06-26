@@ -75,11 +75,34 @@ namespace BlindAssist
 
             if (wifiRS21.IsNetworkConnected)
             {
-
-                //Gadgeteer.
+                SocketServer server = new SocketServer(8080);
+                server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
+                server.Start();
             }
 
             Debug.Print("rfid reads:" + e);
         }
+
+        private void server_DataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string receivedMessage = BytesToString(e.Data);
+            Debug.Print(receivedMessage);
+
+            string response = "Response from server for the request '" + receivedMessage + "'";
+            e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
+
+            if (receivedMessage == "close")
+                e.Close = true;
+        }
+
+        private string BytesToString(byte[] bytes)
+        {
+            string str = string.Empty;
+            for (int i = 0; i < bytes.Length; ++i)
+                str += (char)bytes[i];
+
+            return str;
+        }
+
     }
 }

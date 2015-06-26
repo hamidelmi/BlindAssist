@@ -52,6 +52,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SocketServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Gadgeteer" />
@@ -90,6 +91,8 @@
     <Reference Include="Microsoft.SPOT.Net.Security" />
     <Reference Include="Microsoft.SPOT.TinyCore" />
     <Reference Include="mscorlib" />
+    <Reference Include="System" />
+    <Reference Include="System.Http" />
     <Reference Include="System.IO" />
   </ItemGroup>
   <ItemGroup>
