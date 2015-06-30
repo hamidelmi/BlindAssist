@@ -80,7 +80,6 @@ namespace BlindAssist
                 {
 
                 }
-                //Gadgeteer.
             }
 
             Debug.Print("rfid reads:" + e);
@@ -106,8 +105,6 @@ namespace BlindAssist
 
             return str;
         }
-
-       
 
     }
 }
