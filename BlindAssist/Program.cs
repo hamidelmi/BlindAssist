@@ -1,26 +1,14 @@
-﻿using System;
-using System.Collections;
-using System.Threading;
-using Microsoft.SPOT;
-using Microsoft.SPOT.Presentation;
-using Microsoft.SPOT.Presentation.Controls;
-using Microsoft.SPOT.Presentation.Media;
-using Microsoft.SPOT.Presentation.Shapes;
-using Microsoft.SPOT.Touch;
-using Microsoft.SPOT.Hardware;
+﻿using Gadgeteer.Modules.GHIElectronics;
 using Gadgeteer.Networking;
-using GT = Gadgeteer;
+using Microsoft.SPOT;
 using GTM = Gadgeteer.Modules;
-using Gadgeteer.Modules.GHIElectronics;
-using System.Text;
-using System.IO;
 
 namespace BlindAssist
 {
     public partial class Program
     {
-        const string NETWORK_ID = "TUDWeb";
-        const string NETWORK_PASSKEY = "";
+        const string NETWORK_ID = "Maryam";
+        const string NETWORK_PASSKEY = "smileplz";
         // This method is run when the mainboard is powered up or reset.   
         void ProgramStarted()
         {
@@ -44,11 +32,16 @@ namespace BlindAssist
             wifiRS21.UseDHCP();
 
             var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
-            if (results != null && results.Length > 1)
+            if (results != null && results.Length > 0)
             {
                 var netInfo = results[0];
-                netInfo.Key = "";
+                netInfo.Key = NETWORK_PASSKEY;
+                wifiRS21.DebugPrintEnabled = true;
+                //wifiRS21.NetworkSettings.EnableDhcp();
                 wifiRS21.NetworkInterface.Join(netInfo);
+                //wifiRS21.UseDHCP();
+                //wifiRS21.NetworkSettings.RenewDhcpLease();
+                wifiRS21.UseStaticIP("192.168.0.110", "255.255.255.0", "192.168.0.1");
             }
             else
             {
@@ -73,13 +66,48 @@ namespace BlindAssist
         {
             showNetworkInformation();
 
-            if (wifiRS21.IsNetworkConnected)
+            if (wifiRS21.IsNetworkConnected && wifiRS21.NetworkInterface.IPAddress != "0.0.0.0")
             {
+                try
+                {
+                    SocketServer server = new SocketServer(8080);
+                    server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
+                    server.Start(wifiRS21.NetworkInterface.IPAddress);
 
+                    //Gadgeteer.Networking.GETContent.
+                }
+                catch
+                {
+
+                }
                 //Gadgeteer.
             }
 
             Debug.Print("rfid reads:" + e);
         }
+
+        private void server_DataReceived(object sender, DataReceivedEventArgs e)
+        {
+            string receivedMessage = BytesToString(e.Data);
+            Debug.Print(receivedMessage);
+
+            string response = "Response from server for the request '" + receivedMessage + "'";
+            e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
+
+            if (receivedMessage == "close")
+                e.Close = true;
+        }
+
+        private string BytesToString(byte[] bytes)
+        {
+            string str = string.Empty;
+            for (int i = 0; i < bytes.Length; ++i)
+                str += (char)bytes[i];
+
+            return str;
+        }
+
+       
+
     }
 }
