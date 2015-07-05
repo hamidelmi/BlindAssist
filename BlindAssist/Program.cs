@@ -7,8 +7,13 @@ namespace BlindAssist
 {
     public partial class Program
     {
-        const string NETWORK_ID = "Maryam";
-        const string NETWORK_PASSKEY = "smileplz";
+        private bool isDataFromServerReceived;
+        const int rfidLength = 2;
+        const string NETWORK_ID = "Ehsan :-)";
+        const string NETWORK_PASSKEY = "EhsanAmir66!@";
+        //SocketServer server;
+        string[] requestedItems;
+        string[] requestedItemsSearch;
         // This method is run when the mainboard is powered up or reset.   
         void ProgramStarted()
         {
@@ -25,37 +30,54 @@ namespace BlindAssist
                 timer.Start();
             *******************************************************************************************/
 
-
-            // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
-            Debug.Print("Program Started");
-            wifiRS21.NetworkInterface.Open();
-            wifiRS21.UseDHCP();
-
-            var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
-            if (results != null && results.Length > 0)
+            try
             {
-                var netInfo = results[0];
-                netInfo.Key = NETWORK_PASSKEY;
-                wifiRS21.DebugPrintEnabled = true;
-                //wifiRS21.NetworkSettings.EnableDhcp();
-                wifiRS21.NetworkInterface.Join(netInfo);
-                //wifiRS21.UseDHCP();
-                //wifiRS21.NetworkSettings.RenewDhcpLease();
-                wifiRS21.UseStaticIP("192.168.0.110", "255.255.255.0", "192.168.0.1");
-            }
-            else
-            {
-                Debug.Print("Unable to find the network");
-            }
+                //server = new SocketServer(8080);
+                // Use Debug.Print to show messages in Visual Studio's "Output" window during debugging.
+                Debug.Print("Program Started");
+                wifiRS21.NetworkInterface.Open();
+                wifiRS21.UseDHCP();
+                Debug.Print("Program Started2");
+                var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
+                if (results != null && results.Length > 0)
+                {
+                    var netInfo = results[0];
+                    netInfo.Key = NETWORK_PASSKEY;
+                    wifiRS21.DebugPrintEnabled = true;
+                    //wifiRS21.NetworkSettings.EnableDhcp();
+                    wifiRS21.NetworkInterface.Join(netInfo);
+                    //wifiRS21.UseDHCP();
+                    //wifiRS21.NetworkSettings.RenewDhcpLease();
+                    wifiRS21.UseStaticIP("192.168.0.110", "255.255.255.0", "192.168.0.1");
+                    showNetworkInformation();
+                }
+                else
+                {
+                    Debug.Print("Unable to find the network");
+                }
 
-            rfidReader.IdReceived += rfidReader_IdReceived;
+                rfidReader.IdReceived += rfidReader_IdReceived;
+            }
+            catch (System.Exception e)
+            {
+                Debug.Print(e.Message);
+               
+            }
         }
-
+        /// <summary>
+        /// Show Network Information on the start
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="state"></param>
+        
         void wifiRS21_NetworkUp(GTM.Module.NetworkModule sender, GTM.Module.NetworkModule.NetworkState state)
         {
             showNetworkInformation();
         }
 
+        /// <summary>
+        /// Show Network details
+        /// </summary>
         private void showNetworkInformation()
         {
             Debug.Print("net status:" + wifiRS21.IsNetworkConnected);
@@ -64,39 +86,99 @@ namespace BlindAssist
 
         void rfidReader_IdReceived(RFIDReader sender, string e)
         {
-            showNetworkInformation();
+            //showNetworkInformation();
 
             if (wifiRS21.IsNetworkConnected && wifiRS21.NetworkInterface.IPAddress != "0.0.0.0")
             {
                 try
                 {
                     SocketServer server = new SocketServer(8080);
-                    server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
                     server.Start(wifiRS21.NetworkInterface.IPAddress);
+                    server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
+                    if (isDataFromServerReceived)
+                    {
+                        requestedItemsSearch = new string[requestedItems.Length];
+                        string readRfid = e;
+                        for (int i = 0; i < requestedItems.Length; i++)
+                        {
+                            if (requestedItems[i]==readRfid)
+                            {
+                                
+                            }
+                        }
+                    }
 
                     //Gadgeteer.Networking.GETContent.
+                    
+                    
                 }
                 catch
                 {
-
+                    Debug.Print("rfidReader_IdReceived method error \n" + e);
                 }
+
+                Debug.Print("rfid reads:" + e);
             }
 
-            Debug.Print("rfid reads:" + e);
+            
+            
         }
 
         private void server_DataReceived(object sender, DataReceivedEventArgs e)
         {
-            string receivedMessage = BytesToString(e.Data);
-            Debug.Print(receivedMessage);
+            try
+            {
 
-            string response = "Response from server for the request '" + receivedMessage + "'";
-            e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
+                string receivedMessage = BytesToString(e.Data);
+                setOrderedItems(receivedMessage);
+                Debug.Print("Recieved message from the Client:" + receivedMessage);
+                Debug.Print("The number of the ; in input string:" + requestedItems.Length);
+                string response = "Response from server for the request '" + receivedMessage + "'";
+                isDataFromServerReceived = true;
 
-            if (receivedMessage == "close")
-                e.Close = true;
+
+                e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
+                
+                if (receivedMessage == "close")
+                    e.Close = true;
+            }
+            catch (System.Exception ee)
+            {
+                Debug.Print(ee.Message);
+                throw;
+            }
         }
 
+        private void setOrderedItems(string receivedMessage)
+        {
+            int rfidCount = orderedRfidCount(receivedMessage);
+            requestedItems = new string[rfidCount];
+            int x = 0;
+            for (int i = 0; i < rfidCount; i++)
+            {
+                requestedItems[i] = receivedMessage.Substring(x, 2);
+                x += rfidLength + 1;
+            }
+
+            for (int i = 0; i < requestedItems.Length; i++)
+            {
+                Debug.Print(requestedItems[i]);
+            }
+            
+        }
+        private int orderedRfidCount(string recieiveString)
+        {
+            int count=0;
+            for (int i = 0; i < recieiveString.Length; i++)
+            {
+                char k = recieiveString[i];
+                if (k == ';')
+                {
+                    count++;
+                }
+            }
+            return count;
+        }
         private string BytesToString(byte[] bytes)
         {
             string str = string.Empty;

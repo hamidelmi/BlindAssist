@@ -93,7 +93,7 @@
         </socketUseShape>
       </nestedChildShapes>
     </moduleShape>
-    <socketConnector Id="2eb0d5fc-6fb4-4a3c-8857-23ebb4aa3363" edgePoints="[(2.15358267849573 : 5.045); (4.165 : 5.045); (4.165 : 3.98122047598862)]" fixedFrom="Algorithm" fixedTo="Algorithm">
+    <socketConnector Id="2eb0d5fc-6fb4-4a3c-8857-23ebb4aa3363" edgePoints="[(2.15358267849573 : 5.045); (4.165 : 5.045); (4.165 : 3.98122047598862)]" fixedFrom="NotFixed" fixedTo="NotFixed">
       <socketUseReferencesSocketMoniker Id="cd9a25ac-2f53-43dd-8377-1b1ffa3f4340" />
       <nodes>
         <socketUseShapeMoniker Id="56555ae2-90a8-4408-bb0f-8bd4facf250b" />
