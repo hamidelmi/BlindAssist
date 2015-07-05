@@ -135,8 +135,6 @@ namespace BlindAssist
                 Debug.Print("The number of the ; in input string:" + requestedItems.Length);
                 string response = "Response from server for the request '" + receivedMessage + "'";
                 isDataFromServerReceived = true;
-
-
                 e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
                 
                 if (receivedMessage == "close")
@@ -169,6 +167,7 @@ namespace BlindAssist
         private int orderedRfidCount(string recieiveString)
         {
             int count=0;
+            count = recieiveString.Split(';').Length;
             for (int i = 0; i < recieiveString.Length; i++)
             {
                 char k = recieiveString[i];
