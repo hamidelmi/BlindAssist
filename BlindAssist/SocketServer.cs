@@ -29,7 +29,7 @@ namespace BlindAssist
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
-        public void Start(string ip) 
+        public void Start(string ip)
         {
             //IPHostEntry entry = Dns.GetHostEntry(Dns.GetHostName());
 
@@ -44,6 +44,42 @@ namespace BlindAssist
             new Thread(StartServerInternal).Start();
         }
 
+        Socket clientSocket;
+
+        public void SendBack(byte[] data)
+        {
+            SocketServer socket = this;
+            const int c_microsecondsPerSecond = 1000000;
+
+            if (clientSocket == null)
+                return;
+            using (clientSocket)
+            {
+                while (true)
+                {
+                    try
+                    {
+                        if (clientSocket.Poll(5 * c_microsecondsPerSecond, SelectMode.SelectWrite))
+                        {
+                            // If the butter is zero-lenght, the connection has been closed or terminated.
+                            if (clientSocket.Available == 0)
+                                break;
+
+                            if (data != null){
+                                clientSocket.Send(data);
+                                break;
+                            }
+
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
         private void StartServerInternal()
         {
             while (true)
@@ -51,7 +87,7 @@ namespace BlindAssist
                 try
                 {
                     // Wait for a request from a client.
-                    Socket clientSocket = socket.Accept();
+                    clientSocket = socket.Accept();
 
                     // Process the client request.
                     var request = new ProcessClientRequest(this, clientSocket);
@@ -126,6 +162,7 @@ namespace BlindAssist
                     }
                 }
             }
+
         }
-    } 
+    }
 }

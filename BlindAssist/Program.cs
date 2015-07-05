@@ -61,7 +61,7 @@ namespace BlindAssist
             catch (System.Exception e)
             {
                 Debug.Print(e.Message);
-               
+
             }
         }
         /// <summary>
@@ -69,7 +69,7 @@ namespace BlindAssist
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="state"></param>
-        
+
         void wifiRS21_NetworkUp(GTM.Module.NetworkModule sender, GTM.Module.NetworkModule.NetworkState state)
         {
             showNetworkInformation();
@@ -92,25 +92,22 @@ namespace BlindAssist
             {
                 try
                 {
-                    SocketServer server = new SocketServer(8080);
-                    server.Start(wifiRS21.NetworkInterface.IPAddress);
-                    server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
-                    if (isDataFromServerReceived)
+                    StartServer();
+                    if (server == null)
+                        return;
+                    
+                    requestedItemsSearch = new string[requestedItems.Length];
+                    //??
+                    //It should not be created in here
+                    //It should already have a list of RFID that user is looking for.
+                    string readRfid = e;
+                    for (int i = 0; i < requestedItems.Length; i++)
                     {
-                        requestedItemsSearch = new string[requestedItems.Length];
-                        string readRfid = e;
-                        for (int i = 0; i < requestedItems.Length; i++)
+                        if (requestedItems[i] == readRfid)
                         {
-                            if (requestedItems[i]==readRfid)
-                            {
-                                
-                            }
+                            server.SendBack(System.Text.Encoding.UTF8.GetBytes(readRfid));
                         }
                     }
-
-                    //Gadgeteer.Networking.GETContent.
-                    
-                    
                 }
                 catch
                 {
@@ -119,16 +116,22 @@ namespace BlindAssist
 
                 Debug.Print("rfid reads:" + e);
             }
+        }
 
-            
-            
+        SocketServer server;
+        private void StartServer()
+        {
+            if (server != null)
+                return;
+            server = new SocketServer(8080);
+            server.Start(wifiRS21.NetworkInterface.IPAddress);
+            server.DataReceived += new DataReceivedEventHandler(server_DataReceived);
         }
 
         private void server_DataReceived(object sender, DataReceivedEventArgs e)
         {
             try
             {
-
                 string receivedMessage = BytesToString(e.Data);
                 setOrderedItems(receivedMessage);
                 Debug.Print("Recieved message from the Client:" + receivedMessage);
@@ -138,7 +141,7 @@ namespace BlindAssist
 
 
                 e.ResponseData = System.Text.Encoding.UTF8.GetBytes(response);
-                
+
                 if (receivedMessage == "close")
                     e.Close = true;
             }
@@ -164,11 +167,11 @@ namespace BlindAssist
             {
                 Debug.Print(requestedItems[i]);
             }
-            
+
         }
         private int orderedRfidCount(string recieiveString)
         {
-            int count=0;
+            int count = 0;
             for (int i = 0; i < recieiveString.Length; i++)
             {
                 char k = recieiveString[i];
