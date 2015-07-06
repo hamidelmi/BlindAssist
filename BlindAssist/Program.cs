@@ -8,7 +8,7 @@ namespace BlindAssist
     public partial class Program
     {
         private bool isDataFromServerReceived;
-        const int rfidLength = 2;
+        const int rfidLength = 10;
         const string NETWORK_ID = "Ehsan :-)";
         const string NETWORK_PASSKEY = "EhsanAmir66!@";
         //SocketServer server;
@@ -27,7 +27,7 @@ namespace BlindAssist
             If you want to do something periodically, use a GT.Timer and handle its Tick event, e.g.:
                 GT.Timer timer = new GT.Timer(1000); // every second (1000ms)
                 timer.Tick +=<tab><tab>
-                timer.Start();
+                timer.Start(); 4D00556F06
             *******************************************************************************************/
 
             try
@@ -106,6 +106,7 @@ namespace BlindAssist
                         if (requestedItems[i] == readRfid)
                         {
                             server.SendBack(System.Text.Encoding.UTF8.GetBytes(readRfid));
+                            Debug.Print("Final Result:" + requestedItems[i]);
                         }
                     }
                 }
@@ -157,7 +158,7 @@ namespace BlindAssist
             int x = 0;
             for (int i = 0; i < rfidCount; i++)
             {
-                requestedItems[i] = receivedMessage.Substring(x, 2);
+                requestedItems[i] = receivedMessage.Substring(x, rfidLength);
                 x += rfidLength + 1;
             }
 

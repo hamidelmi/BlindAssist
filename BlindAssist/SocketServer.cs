@@ -67,6 +67,7 @@ namespace BlindAssist
 
                             if (data != null){
                                 clientSocket.Send(data);
+                                Debug.Print(data.ToString());
                                 break;
                             }
 
