@@ -53,6 +53,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SocketClient.cs" />
     <Compile Include="SocketServer.cs" />
   </ItemGroup>
   <ItemGroup>

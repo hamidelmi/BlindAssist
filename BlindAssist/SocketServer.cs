@@ -12,16 +12,28 @@ namespace BlindAssist
 
     public class SocketServer
     {
-        public const int DEFAULT_SERVER_PORT = 8080;
+        
         private Socket socket;
         private int port;
+        private string remoteIP;
+        public string RemoteIP
+        {
+            get
+            {
+                return remoteIP;
+            }
+            set
+            {
+                if (remoteIP == value)
+                    return;
+                remoteIP = value;
+                if (RemoteIPChanged != null)
+                    RemoteIPChanged(this, null);
+            }
+        }
 
         public event DataReceivedEventHandler DataReceived;
-
-        public SocketServer()
-            : this(DEFAULT_SERVER_PORT)
-        { }
-
+        public event EventHandler RemoteIPChanged;
 
         public SocketServer(int port)
         {
@@ -31,54 +43,14 @@ namespace BlindAssist
 
         public void Start(string ip)
         {
-            //IPHostEntry entry = Dns.GetHostEntry(Dns.GetHostName());
-
             //find ip address for your adapter here
             IPAddress localAddress = IPAddress.Parse(ip);
 
             IPEndPoint localEndPoint = new IPEndPoint(localAddress, port);
-            //IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Any, port);
             socket.Bind(localEndPoint);
             socket.Listen(Int32.MaxValue);
 
             new Thread(StartServerInternal).Start();
-        }
-
-        Socket clientSocket;
-
-        public void SendBack(byte[] data)
-        {
-            SocketServer socket = this;
-            const int c_microsecondsPerSecond = 1000000;
-
-            if (clientSocket == null)
-                return;
-            using (clientSocket)
-            {
-                while (true)
-                {
-                    try
-                    {
-                        if (clientSocket.Poll(5 * c_microsecondsPerSecond, SelectMode.SelectWrite))
-                        {
-                            // If the butter is zero-lenght, the connection has been closed or terminated.
-                            if (clientSocket.Available == 0)
-                                break;
-
-                            if (data != null){
-                                clientSocket.Send(data);
-                                Debug.Print(data.ToString());
-                                break;
-                            }
-
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        break;
-                    }
-                }
-            }
         }
 
         private void StartServerInternal()
@@ -88,7 +60,13 @@ namespace BlindAssist
                 try
                 {
                     // Wait for a request from a client.
-                    clientSocket = socket.Accept();
+                    var clientSocket = socket.Accept();
+
+                    var ip = (clientSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
+
+                    if (this.RemoteIP != ip)
+                        this.RemoteIP = ip;
+
 
                     // Process the client request.
                     var request = new ProcessClientRequest(this, clientSocket);
