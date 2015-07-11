@@ -9,6 +9,10 @@ using System.Threading.Tasks;
 
 namespace ClientStream
 {
+    /// <summary>
+    ///  Test class
+    ///  Not in use
+    /// </summary>
     class Program
     {
         const string SERVER_IP = "192.168.0.110";

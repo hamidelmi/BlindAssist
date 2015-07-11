@@ -8,11 +8,19 @@ using Socket = System.Net.Sockets.Socket;
 
 namespace BlindAssist
 {
+    /// <summary>
+    /// Socket Server Class
+    /// The gadgeteer will be in listenning on port No. 8080 mode once the application is started
+    /// A socket server is crated once the app is started and receives the data on Port 8080 from the the connected clients
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     public delegate void DataReceivedEventHandler(object sender, DataReceivedEventArgs e);
 
     public class SocketServer
     {
-        
+
+        #region Variables
         private Socket socket;
         private int port;
         private string remoteIP;
@@ -30,26 +38,35 @@ namespace BlindAssist
                 if (RemoteIPChanged != null)
                     RemoteIPChanged(this, null);
             }
-        }
+        } 
+       
 
         public event DataReceivedEventHandler DataReceived;
         public event EventHandler RemoteIPChanged;
+        #endregion
 
+        /// <summary>
+        /// Constructor
+        /// Create the SocketServer
+        /// </summary>
+        /// <param name="port"></param>
         public SocketServer(int port)
         {
             this.port = port;
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
+        /// <summary>
+        /// start the server on the given IP address
+        /// </summary>
+        /// <param name="ip">IP address of the server</param>
         public void Start(string ip)
         {
             //find ip address for your adapter here
             IPAddress localAddress = IPAddress.Parse(ip);
-
             IPEndPoint localEndPoint = new IPEndPoint(localAddress, port);
             socket.Bind(localEndPoint);
             socket.Listen(Int32.MaxValue);
-
             new Thread(StartServerInternal).Start();
         }
 
@@ -61,20 +78,16 @@ namespace BlindAssist
                 {
                     // Wait for a request from a client.
                     var clientSocket = socket.Accept();
-
                     var ip = (clientSocket.RemoteEndPoint as IPEndPoint).Address.ToString();
-
                     if (this.RemoteIP != ip)
                         this.RemoteIP = ip;
-
-
                     // Process the client request.
                     var request = new ProcessClientRequest(this, clientSocket);
                     request.Process();
                 }
-                catch
+                catch (Exception e)
                 {
-
+                    Debug.Print(e.Message);
                 }
             }
         }
@@ -85,6 +98,7 @@ namespace BlindAssist
                 DataReceived(this, e);
         }
 
+        #region ProcessClientRequest
         private class ProcessClientRequest
         {
             private Socket clientSocket;
@@ -102,6 +116,7 @@ namespace BlindAssist
                 new Thread(ProcessRequest).Start();
             }
 
+           
             private void ProcessRequest()
             {
                 const int c_microsecondsPerSecond = 1000000;
@@ -142,6 +157,7 @@ namespace BlindAssist
                 }
             }
 
-        }
+        } 
+            #endregion
     }
 }

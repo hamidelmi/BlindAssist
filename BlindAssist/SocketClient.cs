@@ -8,15 +8,27 @@ using Socket = System.Net.Sockets.Socket;
 
 namespace BlindAssist
 {
+    /// <summary>
+    /// Socket client class to send the result(Found RFID tags) from the gadgeteer to the Mobile phone
+    /// </summary>
     public class SocketClient
     {
         string server;
         int port;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="server"></param>
+        /// <param name="port"></param>
         public SocketClient(string server, int port)
         {
             this.server = server;
             this.port = port;
         }
+        /// <summary>
+        /// Sends the data to the Mobilephone server (The opened port by the Client as a receiving server) 8081
+        /// </summary>
+        /// <param name="data">data to be sent</param>
         public void Send(string data)
         {
             try
