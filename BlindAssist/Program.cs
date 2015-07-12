@@ -51,11 +51,11 @@ namespace BlindAssist
         /// <summary>
         /// Router SSID to be connected to
         /// </summary>
-        const string NETWORK_ID = "Ehsan :-)";
+        const string NETWORK_ID = "";
         /// <summary>
         /// Router Passkey to be connected to
         /// </summary>
-        const string NETWORK_PASSKEY = "EhsanAmir66!@";
+        const string NETWORK_PASSKEY = "";
         /// <summary>
         /// This holds the received ordered items form the client
         /// Once a RFID tag is read by the reader, it is checked by the content of this array and if they are same the appropriate feedback is sent to the client
@@ -77,7 +77,7 @@ namespace BlindAssist
         {
             try
             {
-                if (NETWORK_ID!= "" || NETWORK_PASSKEY=="")
+                if (NETWORK_ID!= "")
                 {
                     Debug.Print("Program Started...");
                     wifiRS21.NetworkInterface.Open();
