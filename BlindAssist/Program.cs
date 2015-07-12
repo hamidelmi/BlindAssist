@@ -12,6 +12,8 @@ namespace BlindAssist
     /// The appliction has tow main parts one of them is the Handheld cellphone, by which user sends the requested items to the server 
     /// and the next one is the gadgeteer part which is responsible to searh(Listen) the RFDID tags requested by the user.
     /// Both parties are connected to the same router (Domain).
+    /// and it uses the static Ip assignment.
+    /// IP:"192.168.0.110", SM:"255.255.255.0", DG:"192.168.0.1" the default setting
     /// Once the read RFID is equal to what user has requested an appropriate feedback is sent to the user Moblie phone.
     /// It also includes one server and client socket class in order to receive and send data from/to the user.
     /// </summary>
@@ -54,7 +56,7 @@ namespace BlindAssist
         #endregion
 
         #region Main Method
-        // This method is run when the mainboard is powered up or reset.   
+        // This method is run when the mainboard is powered up or reset.(Main Method)   
         void ProgramStarted()
         {
             try
