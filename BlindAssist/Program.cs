@@ -9,17 +9,33 @@ namespace BlindAssist
     /// <summary>
     /// This is the main class of the aplication
     /// The purpose of the aplication is to help the Blind people to buy stuffs from grocery stores.
-    /// The appliction has tow main parts one of them is the Handheld cellphone, by which user sends the requested items to the server 
+    /// The appliction has tow main parts, One of them is the Handheld Mobile phone, by which user sends the requested items to the server 
     /// and the next one is the gadgeteer part which is responsible to searh(Listen) the RFDID tags requested by the user.
     /// Both parties are connected to the same router (Domain).
-    /// and it uses the static Ip assignment.
+    /// The application uses the static Ip assignment.
     /// IP:"192.168.0.110", SM:"255.255.255.0", DG:"192.168.0.1" the default setting
+    /// Please set the above properties based on your local network.
     /// Once the read RFID is equal to what user has requested an appropriate feedback is sent to the user Moblie phone.
     /// It also includes one server and client socket class in order to receive and send data from/to the user.
     /// </summary>
     public partial class Program
     {
         #region The variables definition
+        /// <summary>
+        /// The server IP to be connected from the aother app
+        /// </summary>
+        const string DEFAULT_SERVER_IP = "192.168.0.120";
+        
+        /// <summary>
+        /// The default subnet mask of the server subnet
+        /// </summary>
+        const string DEFAULT_SUBNET_MASK = "255.255.255.0";
+
+        /// <summary>
+        /// The default gateway of the server subnet
+        /// </summary>
+        const string DEFAULT_GATEWAY= "192.168.0.1";
+
         /// <summary>
         /// The port NO. of the Gadgeteer-Side server to be used by the ServerSocket
         /// </summary>
@@ -61,26 +77,33 @@ namespace BlindAssist
         {
             try
             {
-                Debug.Print("Program Started...");
-                wifiRS21.NetworkInterface.Open();
-                wifiRS21.UseDHCP();
-                var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
-                if (results != null && results.Length > 0)
+                if (NETWORK_ID!= "" || NETWORK_PASSKEY=="")
                 {
-                    var netInfo = results[0];
-                    netInfo.Key = NETWORK_PASSKEY;
-                    wifiRS21.DebugPrintEnabled = true;
-                    wifiRS21.NetworkInterface.Join(netInfo);
-                    wifiRS21.UseStaticIP("192.168.0.110", "255.255.255.0", "192.168.0.1");
-                    showNetworkInformation();
-                    wifiRS21.NetworkUp += wifiRS21_NetworkUp;
+                    Debug.Print("Program Started...");
+                    wifiRS21.NetworkInterface.Open();
+                    wifiRS21.UseDHCP();
+                    var results = wifiRS21.NetworkInterface.Scan(NETWORK_ID);
+                    if (results != null && results.Length > 0)
+                    {
+                        var netInfo = results[0];
+                        netInfo.Key = NETWORK_PASSKEY;
+                        wifiRS21.DebugPrintEnabled = true;
+                        wifiRS21.NetworkInterface.Join(netInfo);
+                        wifiRS21.UseStaticIP(DEFAULT_SERVER_IP, DEFAULT_SUBNET_MASK, DEFAULT_GATEWAY);
+                        showNetworkInformation();
+                        wifiRS21.NetworkUp += wifiRS21_NetworkUp;
+                    }
+                    else
+                    {
+                        Debug.Print("Unable to find the network");
+                    }
+
+                    rfidReader.IdReceived += rfidReader_IdReceived; 
                 }
                 else
                 {
-                    Debug.Print("Unable to find the network");
+                    Debug.Print("Please specify the Network SSID and Password in the given fields in Program.cs class!");
                 }
-
-                rfidReader.IdReceived += rfidReader_IdReceived;
             }
             catch (System.Exception e)
             {
