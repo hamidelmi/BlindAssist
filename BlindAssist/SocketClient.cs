@@ -9,7 +9,9 @@ using Socket = System.Net.Sockets.Socket;
 namespace BlindAssist
 {
     /// <summary>
-    /// Socket client class to send the result(Found RFID tags) from the gadgeteer to the Mobile phone
+    /// This class provides an interface to its client to be able to send data via
+    /// Socket.
+    /// This class would close the connection immediately after sending the data.
     /// </summary>
     public class SocketClient
     {
@@ -26,7 +28,7 @@ namespace BlindAssist
             this.port = port;
         }
         /// <summary>
-        /// Sends the data to the Mobilephone server (The opened port by the Client as a receiving server) 8081
+        /// Sends the data to the server 
         /// </summary>
         /// <param name="data">data to be sent</param>
         public void Send(string data)

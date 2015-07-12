@@ -156,6 +156,8 @@ namespace BlindAssist
         /// <param name="e"></param>
         void server_RemoteIPChanged(object sender, EventArgs e)
         {
+            //Initialize the client object right after being connected to a smartphone.
+            //(The opened port by the Client as a receiving server) 8081
             client = new SocketClient(server.RemoteIP, DEFAULT_CLIENT_PORT);
         } 
         #endregion
