@@ -5,6 +5,14 @@ using System.Net.Sockets;
 
 namespace BlindAssist
 {
+    /// <summary>
+    /// Event argument of Data receive event which would be used
+    /// when a data received by the SocketServer to let the client 
+    /// know about incoming data.
+    /// It also provide the ability to the client in order to pass some 
+    /// data as the respose and use the same stream to push back
+    /// the data to the remote sender.
+    /// </summary>
     public class DataReceivedEventArgs : EventArgs
     {
         public EndPoint LocalEndPoint { get; private set; }

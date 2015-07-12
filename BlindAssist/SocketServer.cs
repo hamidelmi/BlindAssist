@@ -41,7 +41,14 @@ namespace BlindAssist
         } 
        
 
+        /// <summary>
+        /// It would be raised when a new data arrives from the remote sender.
+        /// </summary>
         public event DataReceivedEventHandler DataReceived;
+
+        /// <summary>
+        /// It would be raised when a new device is connected.
+        /// </summary>
         public event EventHandler RemoteIPChanged;
         #endregion
 
@@ -99,6 +106,11 @@ namespace BlindAssist
         }
 
         #region ProcessClientRequest
+        /// <summary>
+        /// This class is in charge of processing data coming from the remote sender.
+        /// This class internally use a new thread to handle the request 
+        /// and it will be done when it received close message from the event handler 
+        /// </summary>
         private class ProcessClientRequest
         {
             private Socket clientSocket;
